@@ -223,6 +223,8 @@ static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void togglewin(const Arg *arg);
+static void hidewin(const Arg *arg);
+static void restorewin(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
@@ -283,6 +285,10 @@ static int useargb = 0;
 static Visual *visual;
 static int depth;
 static Colormap cmap;
+
+#define hiddenWinStackMax 100
+static int hiddenWinStackTop = -1;
+static Client* hiddenWinStack[hiddenWinStackMax];
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -432,7 +438,7 @@ attachstack(Client *c)
 void
 buttonpress(XEvent *e)
 {
-	unsigned int i, x, click;
+	unsigned int i, x, click, occ = 0;
 	Arg arg = {0};
 	Client *c;
 	Monitor *m;
@@ -447,9 +453,14 @@ buttonpress(XEvent *e)
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
-		do
+		for (c = m->clients; c; c = c->next)
+			occ |= c->tags == 255 ? 0 : c->tags;
+		do {
+			/* do not reserve space for vacant tags */
+			if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
+				continue;
 			x += TEXTW(tags[i]);
-		while (ev->x >= x && ++i < LENGTH(tags));
+		} while (ev->x >= x && ++i < LENGTH(tags));
 		if (i < LENGTH(tags)) {
 			click = ClkTagBar;
 			arg.ui = 1 << i;
@@ -742,19 +753,19 @@ drawbar(Monitor *m)
 	for (c = m->clients; c; c = c->next) {
 		if (ISVISIBLE(c))
 			n++;
-		occ |= c->tags;
+		occ |= c->tags == 255 ? 0 : c->tags;
 		if (c->isurgent)
 			urg |= c->tags;
 	}
 	x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
+		/* do not draw vacant tags */
+		if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
+		continue;
+
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
-		if (occ & 1 << i)
-			drw_rect(drw, x + boxs, boxs, boxw, boxw,
-				m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-				urg & 1 << i);
 		x += w;
 	}
 	w = blw = TEXTW(m->ltsymbol);
@@ -1363,6 +1374,13 @@ resizeclient(Client *c, int x, int y, int w, int h)
 	c->oldw = c->w; c->w = wc.width = w;
 	c->oldh = c->h; c->h = wc.height = h;
 	wc.border_width = c->bw;
+	if (((nexttiled(c->mon->clients) == c && !nexttiled(c->next))
+	    || &monocle == c->mon->lt[c->mon->sellt]->arrange)
+	    && !c->isfullscreen && !c->isfloating) {
+		c->w = wc.width += c->bw * 2;
+		c->h = wc.height += c->bw * 2;
+		wc.border_width = 0;
+	}
 	XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
 	configure(c);
 	XSync(dpy, False);
@@ -1855,6 +1873,31 @@ toggleview(const Arg *arg)
 		selmon->tagset[selmon->seltags] = newtagset;
 		focus(NULL);
 		arrange(selmon);
+	}
+}
+
+void hidewin(const Arg *arg) {
+	if (!selmon->sel)
+		return;
+	Client *c = (Client*)selmon->sel;
+	hide(c);
+	hiddenWinStack[++hiddenWinStackTop] = c;
+}
+
+void restorewin(const Arg *arg) {
+	int i = hiddenWinStackTop;
+	while (i > -1) {
+		if (HIDDEN(hiddenWinStack[i]) && hiddenWinStack[i]->tags == selmon->tagset[selmon->seltags]) {
+			show(hiddenWinStack[i]);
+			focus(hiddenWinStack[i]);
+			restack(selmon);
+			for (int j = i; j < hiddenWinStackTop; ++j) {
+				hiddenWinStack[j] = hiddenWinStack[j + 1];
+			}
+			--hiddenWinStackTop;
+			return;
+		}
+		--i;
 	}
 }
 
