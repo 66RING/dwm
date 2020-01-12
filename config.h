@@ -58,6 +58,7 @@ static const Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod1Mask
+#define SUPER  Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -77,9 +78,9 @@ static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_b,      spawn,          {.v = browsercmd } },
+	{ SUPER,                        XK_space,  spawn,          {.v = dmenucmd } },
+	{ SUPER,                        XK_Return, spawn,          {.v = termcmd } },
+	{ SUPER,                        XK_c,      spawn,          {.v = browsercmd } },
 	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
     // hide bar
 	//{ MODKEY,                       XK_b,      togglebar,      {0} },
@@ -88,8 +89,8 @@ static Key keys[] = {
 	//{ MODKEY|ShiftMask,             XK_l,      rotatestack,    {.i = -1 } },
 	{ MODKEY,                       XK_l,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = -1 } },
-	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ MODKEY,                       XK_r,      incnmaster,     {.i = +1 } },
+	{ MODKEY,                       XK_R,      incnmaster,     {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_j,      setmfact,       {.f = -0.05} },
 	{ MODKEY|ShiftMask,             XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_h,      hidewin,        {0} },
