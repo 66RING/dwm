@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int borderpx  = 2;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const unsigned int gappih    = 10;       /* horiz inner gap between windows */
 static const unsigned int gappiv    = 10;       /* vert inner gap between windows */
@@ -57,8 +57,13 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
-#define SUPER  Mod4Mask
+#define MODKEY    Mod1Mask
+#define SUPER     Mod4Mask
+#define VOLMUTE   0x1008ff12
+#define VOLDOWM   0x1008ff11
+#define VOLUP     0x1008ff13
+#define LIGHTDOWN 0x1008ff03
+#define LIGHTUP   0x1008ff02
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -73,15 +78,29 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char *browsercmd[]  = { "google-chrome-stable", NULL };
+static const char *trayercmd[]  = { "/usr/ring/scripts/tr-toggle.sh", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
+// control 
+static const char *upvol[] = {"pamixer", "-i",  "10", NULL};
+static const char *dowmvol[] = {"pamixer", "-d",  "10", NULL};
+static const char *mutevol[] = {"pamixer", "-t", NULL};
+static const char *lightup[] = {"light", "-A", "10", NULL};
+static const char *lightdowm[] = {"light", "-U", "10", NULL};
+
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ SUPER,                        XK_space,  spawn,          {.v = dmenucmd } },
 	{ SUPER,                        XK_Return, spawn,          {.v = termcmd } },
 	{ SUPER,                        XK_c,      spawn,          {.v = browsercmd } },
+	{ SUPER,                        XK_t,      spawn,          {.v = trayercmd } },
 	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
+	{ 0,                            VOLMUTE,   spawn,          {.v = mutevol       } },
+	{ 0,                            VOLDOWM,   spawn,          {.v = dowmvol       } },
+	{ 0,                            VOLUP,     spawn,          {.v = upvol         } },
+	{ 0,                            LIGHTDOWN ,spawn,          {.v = lightdowm     } },
+	{ 0,                            LIGHTUP,   spawn,          {.v = lightup       } },
     // hide bar
 	//{ MODKEY,                       XK_b,      togglebar,      {0} },
     // reverse window
@@ -97,7 +116,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_h,      restorewin,     {0} },
 	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY,                       XK_w,      killclient,     {0} },
+	{ MODKEY,                       XK_q,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
