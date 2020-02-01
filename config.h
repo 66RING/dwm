@@ -99,8 +99,8 @@ static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34
 static const char *upvol[] = {"pamixer", "-i",  "7", NULL};
 static const char *dowmvol[] = {"pamixer", "-d",  "7", NULL};
 static const char *mutevol[] = {"pamixer", "-t", NULL};
-static const char *lightup[] = {"light", "-A", "5", NULL};
-static const char *lightdowm[] = {"light", "-U", "5", NULL};
+static const char *lightup[] = {"xbacklight", "-inc", "5", NULL};
+static const char *lightdowm[] = {"xbacklight", "-dec", "5", NULL};
 
 
 static Key keys[] = {
