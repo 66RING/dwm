@@ -8,7 +8,7 @@ static const unsigned int gappiv    = 10;       /* vert inner gap between window
 static const unsigned int gappoh    = 10;       /* horiz outer gap between windows and screen edge */
 static const unsigned int gappov    = 10;       /* vert outer gap between windows and screen edge */
 static const int smartgaps          = 1;        /* 1 means no outer gap when there is only one window */
-static const int showbar            = 0;        /* 0 means no bar */
+static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "Lucida Mac:size=15" };
 static const char dmenufont[]       = "Lucida Mac:size=25";
@@ -89,9 +89,9 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char *browsercmd[]  = { "chromium", NULL };
-static const char *trayercmd[]  = { "/usr/ring/scripts/tr-toggle.sh", NULL };
-static const char *emojicmd[]  = { "/usr/ring/scripts/dmenu-emoji-selection.sh", NULL };
-static const char *wpccmd[]  = { "/usr/ring/scripts/wp-change.sh", NULL };
+static const char *trayercmd[]  = { "/home/ring/scripts/tr-toggle.sh", NULL };
+static const char *emojicmd[]  = { "/home/ring/scripts/dmenu-emoji-selection.sh", NULL };
+static const char *wpccmd[]  = { "/home/ring/scripts/wp-change.sh", NULL };
 static const char *lockon[]  = { "xscreensaver-command --lock", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
